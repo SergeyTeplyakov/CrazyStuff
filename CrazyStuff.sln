@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyStuff", "CrazyStuff\CrazyStuff.csproj", "{EC81D147-E7DA-497E-97B4-194D8DAF94A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B097FCC3-F0DE-4E37-AF64-58D30B05C199}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyStuff.UnitTests", "Tests\CrazyStuff.UnitTests\CrazyStuff.UnitTests.csproj", "{10B072AE-233F-4E30-B724-7A0FA6B3ECF9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{E9D1D6E8-9A70-4416-A7CA-21D5E86B0192}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyStuff.Samples", "Samples\CrazyStuff.Samples\CrazyStuff.Samples.csproj", "{0F523299-AF09-45B6-9479-F4ADBE18ADF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC81D147-E7DA-497E-97B4-194D8DAF94A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC81D147-E7DA-497E-97B4-194D8DAF94A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC81D147-E7DA-497E-97B4-194D8DAF94A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC81D147-E7DA-497E-97B4-194D8DAF94A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10B072AE-233F-4E30-B724-7A0FA6B3ECF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10B072AE-233F-4E30-B724-7A0FA6B3ECF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10B072AE-233F-4E30-B724-7A0FA6B3ECF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10B072AE-233F-4E30-B724-7A0FA6B3ECF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F523299-AF09-45B6-9479-F4ADBE18ADF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F523299-AF09-45B6-9479-F4ADBE18ADF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F523299-AF09-45B6-9479-F4ADBE18ADF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F523299-AF09-45B6-9479-F4ADBE18ADF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{10B072AE-233F-4E30-B724-7A0FA6B3ECF9} = {B097FCC3-F0DE-4E37-AF64-58D30B05C199}
+		{0F523299-AF09-45B6-9479-F4ADBE18ADF4} = {E9D1D6E8-9A70-4416-A7CA-21D5E86B0192}
+	EndGlobalSection
+EndGlobal
