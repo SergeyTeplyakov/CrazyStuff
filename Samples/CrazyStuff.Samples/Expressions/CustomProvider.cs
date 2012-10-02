@@ -33,6 +33,7 @@ namespace CrazyStuff.Samples.Expressions
 
         public Task<Order> GetOrder(int orderId, string customerName)
         {
+            Console.WriteLine("GetOrder");
             return Task.Run(() =>
                     {
                         // Эмулируем длительную операцию

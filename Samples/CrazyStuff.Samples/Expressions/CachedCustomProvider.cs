@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
@@ -12,6 +13,9 @@ namespace CrazyStuff.Samples.Expressions
     /// </summary>
     public sealed class CachedCustomProvider : ICustomProvider
     {
+        private readonly Dictionary<MethodCallInfo, Task> _cache = new Dictionary<MethodCallInfo, Task>();
+        private readonly object _cacheSyncRoot = new object();
+
         private readonly ICustomProvider _customProvider;
 
         public CachedCustomProvider(ICustomProvider customProvider)
@@ -28,26 +32,33 @@ namespace CrazyStuff.Samples.Expressions
 
         private Task<T> GetFromCacheOrUpdate<T>(Expression<Func<Task<T>>> expression)
         {
-            // Getting operation id by the expression
+            // Получаем идентификатор операции
             var methodInfo = ExpressionParser.ProcessMethodCallExpression(expression);
-            lock (_cacheSyncRoot)
+
+            Console.WriteLine("MethodInfo: {0}",methodInfo);
+            lock(_cacheSyncRoot)
             {
-                Console.WriteLine("Looking result into cache. Cache size is {0}", _cache.Count);
-                // Looking for the cached value first
+                
+                Console.WriteLine(_cache.Count);
+
                 Task cachedTask;
                 if (_cache.TryGetValue(methodInfo, out cachedTask))
                 {
-                    Console.WriteLine("Item not found");
                     return (Task<T>) cachedTask;
                 }
 
-                // Compile and execute expression to obtain real task
-                var task = expression.Compile()();
-                _cache[methodInfo] = task;
+                // Получаем задачу
+                var newTask = expression.Compile()();
+                _cache[methodInfo] = newTask;
 
-                // Clearing cache when task finishes
-                task.ContinueWith(t => _cache.Remove(methodInfo));
-                return task;
+                // Подписываемся на продолжение и удалем ее
+                newTask.ContinueWith(t =>
+                        {
+                            lock (_cacheSyncRoot)
+                                _cache.Remove(methodInfo);
+                        });
+
+                return newTask;
             }
         }
 
@@ -60,12 +71,5 @@ namespace CrazyStuff.Samples.Expressions
         {
             return GetFromCacheOrUpdate(() => _customProvider.GetCustomerName(id));
         }
-    
-
-
-    private readonly Dictionary<MethodCallInfo, Task> _cache =
-            new Dictionary<MethodCallInfo, Task>();
-        private readonly object _cacheSyncRoot = new object();
-
     }
 }

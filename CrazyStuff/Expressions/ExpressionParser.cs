@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace CrazyStuff.Expressions
 {
@@ -29,11 +30,9 @@ namespace CrazyStuff.Expressions
             Contract.Assert(methodCall != null, 
                 "ProcessMethodCallExpression supports only method call expressions");
 
-            // Converting all arguments to Func<object> expressions and evaluate them
+            // Converting or evaluating all arguments
             var arguments = from arg in methodCall.Arguments
-                            let argAsObj = Expression.Convert(arg, typeof(object))
-                            select Expression.Lambda<Func<object>>(argAsObj, null)
-                                .Compile()();
+                            select ProcessExpression(arg);
 
             var parameters = arguments.ToArray();
 
@@ -56,15 +55,102 @@ namespace CrazyStuff.Expressions
             Contract.Assert(methodCall != null, 
                 "ProcessMethodCallExpression supports only method call expressions");
 
-            // Converting all arguments to Func<object> expressions and evaluate them
+            // Converting or evaluating all arguments
             var arguments = from arg in methodCall.Arguments
-                            let argAsObj = Expression.Convert(arg, typeof(object))
-                            select Expression.Lambda<Func<object>>(argAsObj, null)
-                                .Compile()();
+                            select ProcessExpression(arg);
 
             var parameters = arguments.ToArray();
 
             return new MethodCallInfo(methodCall.Method.Name, parameters);
+        }
+
+        private static object ProcessExpression(Expression expression)
+        {
+            var visitor = new CustomVisitor();
+            visitor.Visit(expression);
+
+            if (visitor.Processed)
+                return visitor.Value;
+
+            // Can't process this expression with our custom visitor.
+            // Using heavy-weight compilation
+
+            var argAsObj = Expression.Convert(expression, typeof (object));
+
+            return Expression.Lambda<Func<object>>(argAsObj, null).Compile()();
+        }
+
+        private class CustomVisitor : ExpressionVisitor
+        {
+            private object _value;
+
+            public bool Processed { get; private set; }
+            public object Value
+            {
+                get { return _value; }
+                private set
+                {
+                    Processed = true;
+                    _value = value;
+                }
+            }
+
+            protected override Expression VisitConstant(ConstantExpression node)
+            {
+                Value = node.Value;
+                return node;
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                // Member expression could be in form of simple fields or
+                // properties
+
+                if (node.Expression is ConstantExpression)
+                {
+                    var ci = (ConstantExpression) node.Expression;
+                    var mi = (FieldInfo) node.Member;
+                    Value = mi.GetValue(ci.Value);
+                }
+                else if (node.Member is PropertyInfo)
+                {
+                    var pi = (PropertyInfo) node.Member;
+                    
+                    // Visiting subexpression recursivly to obtain 
+                    // property objects value (for example, for expression () => foo.X
+                    // pi will contain "X" and value - "foo"
+                    var visitor = new CustomVisitor();
+                    visitor.Visit(node.Expression);
+                    var value = visitor.Value;
+                    
+                    if (visitor.Processed)
+                        Value = pi.GetValue(value);
+                }
+
+                return node;
+            }
+
+            protected override Expression VisitInvocation(InvocationExpression node)
+            {
+                Value = Expression.Lambda(node).Compile().DynamicInvoke();
+                return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                var methodInfo = node.Method;
+                var visitor = new CustomVisitor();
+                visitor.Visit(node.Object);
+                if (visitor.Processed)
+                {
+                    Value = methodInfo.Invoke(visitor.Value, null);
+                }
+                else
+                {
+                    Value = Expression.Lambda(node).Compile().DynamicInvoke();
+                }
+                return node;
+            }
         }
     }
 }

@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\ExpressionParserPerformanceTests.cs" />
     <Compile Include="Expressions\ExpressionParserTests.cs" />
     <Compile Include="Expressions\MethodCallInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
